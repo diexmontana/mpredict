@@ -1,0 +1,163 @@
+{
+  "nombre": "tais-tamano-django-generico",
+  "version": "1.0",
+  "entrenado": "2026-11-08T22:36:04",
+  "que_predice": "tamaño del cambio de código RELATIVO al proyecto: pequeño / mediano / grande según los percentiles 30 y 80 de los commits de su propio historial",
+  "clases": [
+    "grande",
+    "mediano",
+    "pequeño"
+  ],
+  "uso": "maint_predict.predecir(titulo, descripcion, 'tamano')",
+  "datos": {
+    "archivo": "datos/dataset_unificado.csv",
+    "sha256": "5d272f422911bfeab378323b71baa7c453dada4ba4e8eb0bcbf7053945ab5d81",
+    "entrenamiento": "uso = entrenamiento (Django 2020–2024 + Baby Buddy completo), tamano ≠ sin_codigo",
+    "filas_entrenamiento": 1673,
+    "filas_por_proyecto_y_clase": {
+      "babybuddy": {
+        "grande": 55,
+        "mediano": 53,
+        "pequeño": 33
+      },
+      "django": {
+        "grande": 270,
+        "mediano": 792,
+        "pequeño": 470
+      }
+    },
+    "prueba_secundaria": "uso = prueba_django (Django 2025–2026), 554 filas"
+  },
+  "entradas": {
+    "usuario": [
+      "titulo",
+      "descripcion"
+    ],
+    "modelo": [
+      "TF-IDF de texto_modelo (1 y 2 palabras, min_df=2, max_df=0.9)",
+      "embeddings de texto_modelo (sentence-transformers/all-MiniLM-L6-v2, 384 números)",
+      "tiene_traceback",
+      "tiene_codigo",
+      "log(1 + n_palabras_descripcion), escalado"
+    ],
+    "no_usa": [
+      "component",
+      "severity"
+    ]
+  },
+  "tecnica": {
+    "clasificador": "LogisticRegression",
+    "class_weight": "balanced",
+    "C": 1,
+    "C_probados": [
+      0.3,
+      1,
+      3,
+      10
+    ],
+    "f1_macro_validacion_cruzada": 0.4849914296142902,
+    "f1_macro_por_C": {
+      "0.3": 0.4660068975643899,
+      "1": 0.4849914296142902,
+      "3": 0.4775475520814984,
+      "10": 0.4763815190575064
+    },
+    "semilla": 42,
+    "max_iter": 4000
+  },
+  "linea_base": "siempre «mediano» (la clase más frecuente del entrenamiento)",
+  "metricas_prueba_django": {
+    "modelo": {
+      "n": 554,
+      "clases_promediadas": [
+        "pequeño",
+        "mediano",
+        "grande"
+      ],
+      "exactitud": 0.41335740072202165,
+      "exactitud_equilibrada": 0.4155860673426932,
+      "f1_macro": 0.4089120465591054
+    },
+    "linea_base": {
+      "n": 554,
+      "clases_promediadas": [
+        "pequeño",
+        "mediano",
+        "grande"
+      ],
+      "exactitud": 0.5,
+      "exactitud_equilibrada": 0.3333333333333333,
+      "f1_macro": 0.2222222222222222
+    },
+    "ic95": {
+      "modelo": {
+        "exactitud_equilibrada": [
+          0.3735232102869609,
+          0.4552308501584566
+        ],
+        "f1_macro": [
+          0.36729504268062063,
+          0.4474976347164534
+        ]
+      },
+      "linea_base": {
+        "exactitud_equilibrada": [
+          0.3333333333333333,
+          0.3333333333333333
+        ],
+        "f1_macro": [
+          0.21013597033374534,
+          0.234192037470726
+        ]
+      },
+      "diferencia": {
+        "exactitud_equilibrada": [
+          0.04018987695362757,
+          0.12189751682512331
+        ],
+        "f1_macro": [
+          0.1433929002693912,
+          0.2279578228704352
+        ]
+      },
+      "repeticiones": 1000,
+      "semilla": 42
+    }
+  },
+  "versiones": {
+    "python": "3.12.4",
+    "scikit-learn": "1.9.1",
+    "sentence-transformers": "6.2.0",
+    "torch": "2.15.0+cpu",
+    "pandas": "3.1.0",
+    "numpy": "2.5.4",
+    "joblib": "1.6.0",
+    "maint_predict": "1.0",
+    "sistema": "Windows 11"
+  },
+  "cortes": {
+    "archivo": "datos/cortes_tamano.json",
+    "percentiles": [
+      30,
+      80
+    ],
+    "por_proyecto": {
+      "django": {
+        "pequeño": "≤ 5",
+        "mediano": "6–34",
+        "grande": "> 34"
+      },
+      "evap": {
+        "pequeño": "≤ 9",
+        "mediano": "10–202",
+        "grande": "> 202"
+      },
+      "babybuddy": {
+        "pequeño": "≤ 4",
+        "mediano": "5–56",
+        "grande": "> 56"
+      }
+    },
+    "nota": "El modelo predice la categoría; las líneas que significa dependen de los cortes del proyecto donde se use."
+  }
+}

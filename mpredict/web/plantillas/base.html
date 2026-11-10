@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {% if refrescar %}<meta http-equiv="refresh" content="5">{% endif %}
+  <title>{% block titulo %}mpredict{% endblock %}</title>
+  <link rel="stylesheet" href="/estatico/estilo.css">
+</head>
+<body>
+  <header class="barra">
+    <span class="marca">mpredict</span>
+    <span class="lema">pre-análisis de solicitudes de mantenimiento</span>
+  </header>
+  <main>{% block contenido %}{% endblock %}</main>
+</body>
+</html>

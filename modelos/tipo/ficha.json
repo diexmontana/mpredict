@@ -1,0 +1,138 @@
+{
+  "nombre": "tais-tipo-django-generico",
+  "version": "1.0",
+  "entrenado": "2026-11-08T22:36:04",
+  "que_predice": "tipo de mantenimiento (etiqueta del gestor de tickets)",
+  "clases": [
+    "Bug",
+    "Cleanup/optimization",
+    "New feature"
+  ],
+  "uso": "maint_predict.predecir(titulo, descripcion, 'tipo')",
+  "datos": {
+    "archivo": "datos/dataset_unificado.csv",
+    "sha256": "5d272f422911bfeab378323b71baa7c453dada4ba4e8eb0bcbf7053945ab5d81",
+    "entrenamiento": "uso = entrenamiento (Django 2020–2024 + Baby Buddy completo), tipo ≠ sin_tipo",
+    "filas_entrenamiento": 1671,
+    "filas_por_proyecto_y_clase": {
+      "babybuddy": {
+        "Bug": 65,
+        "Cleanup/optimization": 10,
+        "New feature": 64
+      },
+      "django": {
+        "Bug": 839,
+        "Cleanup/optimization": 396,
+        "New feature": 297
+      }
+    },
+    "prueba_secundaria": "uso = prueba_django (Django 2025–2026), 554 filas"
+  },
+  "entradas": {
+    "usuario": [
+      "titulo",
+      "descripcion"
+    ],
+    "modelo": [
+      "TF-IDF de texto_modelo (1 y 2 palabras, min_df=2, max_df=0.9)",
+      "embeddings de texto_modelo (sentence-transformers/all-MiniLM-L6-v2, 384 números)",
+      "tiene_traceback",
+      "tiene_codigo",
+      "log(1 + n_palabras_descripcion), escalado"
+    ],
+    "no_usa": [
+      "component",
+      "severity"
+    ]
+  },
+  "tecnica": {
+    "clasificador": "LogisticRegression",
+    "class_weight": "balanced",
+    "C": 10,
+    "C_probados": [
+      0.3,
+      1,
+      3,
+      10
+    ],
+    "f1_macro_validacion_cruzada": 0.7102492898810273,
+    "f1_macro_por_C": {
+      "0.3": 0.6842174984411039,
+      "1": 0.7052286659742115,
+      "3": 0.7094814839020573,
+      "10": 0.7102492898810273
+    },
+    "semilla": 42,
+    "max_iter": 4000
+  },
+  "linea_base": "siempre «Bug» (la clase más frecuente del entrenamiento)",
+  "metricas_prueba_django": {
+    "modelo": {
+      "n": 554,
+      "clases_promediadas": [
+        "Bug",
+        "Cleanup/optimization",
+        "New feature"
+      ],
+      "exactitud": 0.7545126353790613,
+      "exactitud_equilibrada": 0.6963595751893491,
+      "f1_macro": 0.6884870157325979
+    },
+    "linea_base": {
+      "n": 554,
+      "clases_promediadas": [
+        "Bug",
+        "Cleanup/optimization",
+        "New feature"
+      ],
+      "exactitud": 0.6083032490974729,
+      "exactitud_equilibrada": 0.3333333333333333,
+      "f1_macro": 0.25215114104002995
+    },
+    "ic95": {
+      "modelo": {
+        "exactitud_equilibrada": [
+          0.6486057135767187,
+          0.740035734899196
+        ],
+        "f1_macro": [
+          0.6406557034559046,
+          0.7300835607224293
+        ]
+      },
+      "linea_base": {
+        "exactitud_equilibrada": [
+          0.3333333333333333,
+          0.3333333333333333
+        ],
+        "f1_macro": [
+          0.2411674347158218,
+          0.26259309745588755
+        ]
+      },
+      "diferencia": {
+        "exactitud_equilibrada": [
+          0.31527238024338533,
+          0.4067024015658627
+        ],
+        "f1_macro": [
+          0.3860261540219114,
+          0.48066394125058376
+        ]
+      },
+      "repeticiones": 1000,
+      "semilla": 42
+    }
+  },
+  "versiones": {
+    "python": "3.12.4",
+    "scikit-learn": "1.9.1",
+    "sentence-transformers": "6.2.0",
+    "torch": "2.15.0+cpu",
+    "pandas": "3.1.0",
+    "numpy": "2.5.4",
+    "joblib": "1.6.0",
+    "maint_predict": "1.0",
+    "sistema": "Windows 11"
+  }
+}

@@ -1,0 +1,7 @@
+.venv
+datos
+**/__pycache__
+.git
+.env
+docker/osticket
+osticket-plugin

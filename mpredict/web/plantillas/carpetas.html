@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block titulo %}Carpetas de {{ p.nombre }} · mpredict{% endblock %}
+{% block contenido %}
+<p><a href="/proyectos">← Proyectos</a></p>
+<h1>Carpetas de código de {{ p.nombre }}</h1>
+<p class="nota">Marca las carpetas de primer nivel que contienen el código del proyecto. Sirven para dos cosas:
+  contar las líneas de cada commit (cortes de tamaño, sin pruebas) y elegir los archivos <code>.py</code> que analiza
+  M92 (sin pruebas ni migraciones). Vienen marcadas las que propone mpredict, con su motivo.</p>
+{% if error %}<p class="error">{{ error }}</p>{% endif %}
+<form method="post" class="tarjeta">
+  <ul class="carpetas">
+  {% for c in p.carpetas_disponibles %}
+    <li><label><input type="checkbox" name="carpeta" value="{{ c }}" {% if c in marcadas %}checked{% endif %}>
+      <code>{{ c }}/</code></label>
+      {% if c in (p.carpetas_propuestas or {}) %}<small class="motivo">propuesta: {{ p.carpetas_propuestas[c] | join("; ") }}</small>{% endif %}
+    </li>
+  {% endfor %}
+  </ul>
+  <button type="submit">Confirmar y preparar</button>
+</form>
+{% endblock %}

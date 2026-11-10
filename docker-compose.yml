@@ -1,0 +1,100 @@
+# mpredict + osTicket (en español) + base de datos de osTicket.
+#
+#   docker compose up -d --build        levantar (la primera vez construye e instala)
+#   docker compose logs -f              ver qué está haciendo
+#   docker compose down                 apagar (los datos se conservan en los volúmenes)
+#   docker compose down -v              apagar y BORRAR los datos de mpredict y osTicket
+#
+# Nombres, puertos y red elegidos tras comprobar que están libres (09-11-2026):
+#   proyecto «mpredict»; contenedores mpredict-app, mpredict-osticket, mpredict-db;
+#   puertos 127.0.0.1:8600 (mpredict) y 127.0.0.1:8680 (osTicket);
+#   red mpredict_red 172.31.0.0/24; volúmenes con prefijo mpredict_.
+# Requiere el archivo .env (copia de .env.example).
+name: mpredict
+
+services:
+  db:
+    image: mariadb:10.11
+    container_name: mpredict-db
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: osticket
+      MARIADB_USER: osticket
+      MARIADB_PASSWORD: ${DB_PASS:?Falta DB_PASS en .env}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASS:?Falta DB_ROOT_PASS en .env}
+    volumes:
+      - mpredict_db_datos:/var/lib/mysql
+    networks:
+      mpredict_red:
+        ipv4_address: 172.31.0.10
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  osticket:
+    build: ./docker/osticket
+    image: mpredict-osticket:1.18.4
+    container_name: mpredict-osticket
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8680:80"
+    environment:
+      DB_HOST: db
+      DB_NAME: osticket
+      DB_USER: osticket
+      DB_PASS: ${DB_PASS}
+      ADMIN_USER: ${OSTICKET_ADMIN_USER:?Falta OSTICKET_ADMIN_USER en .env}
+      ADMIN_PASS: ${OSTICKET_ADMIN_PASS:?Falta OSTICKET_ADMIN_PASS en .env}
+      ADMIN_EMAIL: ${OSTICKET_ADMIN_EMAIL:?Falta OSTICKET_ADMIN_EMAIL en .env}
+      HELPDESK_URL: http://127.0.0.1:8680/
+      MPREDICT_URL: http://mpredict-app:8600
+      MPREDICT_SECRETO: ${MPREDICT_SECRETO:?Falta MPREDICT_SECRETO en .env}
+    volumes:
+      # el complemento se lee directamente de la carpeta del proyecto
+      - ./osticket-plugin/mpredict-asistente:/var/www/html/include/plugins/mpredict-asistente:ro
+      - mpredict_osticket_estado:/opt/mpredict/estado
+    networks:
+      mpredict_red:
+        ipv4_address: 172.31.0.20
+
+  app:
+    build:
+      context: .
+      dockerfile: docker/app/Dockerfile
+    image: mpredict-app:0.1.0
+    container_name: mpredict-app
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8600:8600"
+    environment:
+      MPREDICT_DATOS: /datos
+      MPREDICT_ZONA: America/Lima
+      MPREDICT_URL_PUBLICA: http://127.0.0.1:8600
+      OSTICKET_URL: http://mpredict-osticket
+      OSTICKET_SECRETO: ${MPREDICT_SECRETO}
+    volumes:
+      - mpredict_datos:/datos
+    networks:
+      mpredict_red:
+        ipv4_address: 172.31.0.30
+
+networks:
+  mpredict_red:
+    name: mpredict_red
+    ipam:
+      config:
+        - subnet: 172.31.0.0/24
+          gateway: 172.31.0.1
+
+volumes:
+  mpredict_db_datos:
+    name: mpredict_db_datos
+  mpredict_osticket_estado:
+    name: mpredict_osticket_estado
+  mpredict_datos:
+    name: mpredict_datos

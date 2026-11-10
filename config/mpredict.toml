@@ -1,0 +1,15 @@
+# Configuración de mpredict.
+# Las rutas relativas se toman desde la carpeta maint-predict.
+
+[modelos]
+# Carpeta de cada modelo: debe contener modelo.joblib y ficha.json.
+# Para cambiar de modelo, reemplaza la carpeta (o apunta aquí a otra) y reinicia mpredict.
+tipo = "modelos/tipo"
+tamano = "modelos/tamano"
+
+[rutas]
+# Datos que mpredict genera al funcionar (SQLite, repositorios clonados, índices de M92).
+# Está en .gitignore. En Docker se sustituye con la variable MPREDICT_DATOS.
+datos = "datos"
+# Caché de los modelos de Hugging Face. En Docker se sustituye con la variable HF_HOME.
+hf_home = "datos/hf"

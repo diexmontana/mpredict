@@ -1,0 +1,25 @@
+# Entorno virtual de Python (cada uno lo crea con requirements.txt)
+.venv/
+
+# Datos que mpredict genera al funcionar: SQLite, repositorios clonados,
+# índices de M92 (fragmentos y embeddings) y registros
+datos/
+*.sqlite
+*.sqlite3
+*.db
+
+# Cachés de Python y de herramientas
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.cache/
+huggingface/
+
+# Configuración local con secretos (se parte de .env.example)
+.env
+
+# Archivos del sistema y de editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block titulo %}Proyectos · mpredict{% endblock %}
+{% block contenido %}
+<h1>Proyectos</h1>
+
+{% for a in avisos %}
+<p class="aviso {% if a.grave %}grave{% endif %}">Modelo de {{ a.modelo }}: {{ a.texto }}</p>
+{% endfor %}
+
+<section class="tarjeta">
+  <h2>Registrar un proyecto</h2>
+  <form method="post" action="/proyectos" class="fila-form">
+    <label>Nombre <input name="nombre" value="{{ nombre }}" placeholder="EvaP" required maxlength="60"></label>
+    <label class="ancho">URL de GitHub <input name="url" value="{{ url }}" placeholder="https://github.com/e-valuation/EvaP" required></label>
+    <button type="submit">Registrar</button>
+  </form>
+  <p class="nota">mpredict clonará el repositorio (historial completo), propondrá las carpetas de código para que las
+    confirmes, calculará los cortes de tamaño, preparará el índice de archivos Python y creará en osTicket el tema
+    de ayuda «Proyecto &lt;nombre&gt;». Todo ocurre en segundo plano.</p>
+  {% if error %}<p class="error">{{ error }}</p>{% endif %}
+</section>
+
+{% if proyectos %}
+<table>
+  <thead><tr><th>Proyecto</th><th>Estado</th><th>Carpetas de código</th><th>Cortes de tamaño</th>
+      <th>Índice (.py)</th><th>Tema en osTicket</th><th></th></tr></thead>
+  <tbody>
+  {% for p in proyectos %}
+  <tr>
+    <td><b>{{ p.nombre }}</b><br><a href="{{ p.url }}" target="_blank" rel="noopener">{{ p.url }}</a>
+      {% if p.commit_actual %}<br><small>commit {{ p.commit_actual[:8] }}{% if p.rama %} ({{ p.rama }}){% endif %}</small>{% endif %}</td>
+    <td><span class="estado e-{{ p.estado }}">{{ ESTADOS[p.estado] }}</span>
+      {% if p.mensaje %}<br><small>{{ p.mensaje }}</small>{% endif %}</td>
+    <td>{% if p.carpetas %}{% for c in p.carpetas %}<code>{{ c }}/</code> {% endfor %}{% else %}—{% endif %}</td>
+    <td>{% if p.cortes and p.cortes.pequeno_hasta is defined %}
+        pequeño ≤ {{ p.cortes.pequeno_hasta }} · mediano {{ p.cortes.pequeno_hasta + 1 }}–{{ p.cortes.mediano_hasta }} ·
+        grande &gt; {{ p.cortes.mediano_hasta }}<br><small>{{ p.cortes.commits_usados }} commits desde 2020</small>
+        {% elif p.cortes %}sin cortes<br><small>{{ p.cortes.commits_usados }} commits</small>{% else %}—{% endif %}</td>
+    <td>{% if p.indice_info %}{{ p.indice_info.archivos }} archivos<br><small>{{ p.indice_info.fragmentos }} fragmentos</small>{% else %}—{% endif %}</td>
+    <td>{% if p.osticket_tema_id %}{{ p.osticket_tema_nombre }} <small>(id {{ p.osticket_tema_id }})</small>
+        {% elif p.osticket_mensaje %}<small>{{ p.osticket_mensaje }}</small>{% else %}—{% endif %}</td>
+    <td class="acciones">
+      {% if p.estado == "por_confirmar" %}<a class="boton" href="/proyectos/{{ p.id }}/carpetas">Confirmar carpetas</a>{% endif %}
+      {% if p.estado in ("listo", "listo_con_aviso", "error") %}
+        {% if p.carpetas_disponibles %}<a href="/proyectos/{{ p.id }}/carpetas">Cambiar carpetas</a>{% endif %}
+        <form method="post" action="/proyectos/{{ p.id }}/actualizar"><button type="submit">Actualizar</button></form>
+      {% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% if refrescar %}<p class="nota">Hay trabajos en curso: esta página se actualiza sola cada 5 segundos.</p>{% endif %}
+{% else %}
+<p class="nota">Todavía no hay proyectos registrados.</p>
+{% endif %}
+{% endblock %}

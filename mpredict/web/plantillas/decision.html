@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block titulo %}Análisis {{ decision }} · mpredict{% endblock %}
+{% block contenido %}
+<h1>Análisis mpredict del ticket {{ a.ticket_numero or "(sin número)" }}</h1>
+<section class="tarjeta">
+  <p><b>Proyecto:</b> {{ a.proyecto }} · <b>Fecha del análisis:</b> {{ a.creado }}</p>
+  <p>{% set tipos_es = {"Bug": "Correctivo", "New feature": "Perfectivo", "Cleanup/optimization": "Preventivo"} %}
+  <b>Tipo:</b> {% if a.tipo in tipos_es %}{{ tipos_es[a.tipo] }} ({{ a.tipo }}){% else %}{{ a.tipo }}{% endif %} · <b>Tamaño:</b> {{ a.tamano }}{% if a.tamano_rango %} ({{ a.tamano_rango }}){% endif %}</p>
+  <p><b>Archivos:</b> {% for x in a.archivos or [] %}<code>{{ x.archivo }}</code>{% if not loop.last %}, {% endif %}{% endfor %}</p>
+  <p><b>Decisión guardada:</b> {{ a.decision or "ninguna todavía" }}{% if a.fecha_decision %} ({{ a.fecha_decision }}){% endif %}</p>
+</section>
+{% if hecho %}
+  <p class="ok">Listo: el análisis quedó marcado como <b>{{ decision }}</b>. Puedes cerrar esta pestaña.</p>
+{% elif a.decision == decision %}
+  <p class="ok">Este análisis ya está marcado como <b>{{ decision }}</b>.</p>
+  <p class="nota">¿Te equivocaste? <a href="/decision/{{ a.codigo }}/{{ 'descartar' if accion == 'aceptar' else 'aceptar' }}">Cambiar a
+    {{ 'descartado' if accion == 'aceptar' else 'aceptado' }}</a> (se pedirá confirmación).</p>
+{% else %}
+  <form method="post" class="tarjeta">
+    <p>¿Confirmas que quieres marcar este análisis como <b>{{ decision }}</b>?</p>
+    <button type="submit">Sí, marcar como {{ decision }}</button>
+  </form>
+{% endif %}
+{% endblock %}
